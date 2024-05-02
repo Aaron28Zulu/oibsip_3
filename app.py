@@ -95,33 +95,22 @@ class App(tk.Tk):
                                    command=self.generate_password)
         btn_calculate.place(relx=0.12, rely=0.78)
 
-    def get_lowercase(self, num_letters):
-        for _ in range(0, num_letters):
-            self.password.append(random.choice(self.lowerLetters))
-
-    def get_uppercase(self, num_letters):
-        for _ in range(0, num_letters):
-            self.password.append(random.choice(self.upperLetters))
-
-    def get_digits(self, num_digits):
-        for _ in range(0, num_digits):
-            self.password.append(random.choice(self.numbers))
-
-    def get_symbols(self, num_symbols):
-        for _ in range(0, num_symbols):
-            self.password.append(random.choice(self.symbols))
-
     def toplevel(self, final_password):
         pop = Toplevel(self)
         pop.title("Generated Password")
-        pop.geometry('300x100')
+        # pop.geometry('300x100')
+        pop.minsize(300, 100)
+        pop.resizable(True, False)
 
         pop_label = ttk.Label(pop, text='Here is your desired password: ', font=('helvetica', 12), foreground='black')
         pop_label.pack(pady=10)
 
+        random.shuffle(final_password)
+
         generated_pw = ttk.Label(pop, text=final_password, background='lightblue', foreground='#000')
         generated_pw.config(anchor=CENTER)
         generated_pw.pack()
+        self.password = []
 
     def generate_password(self):
         try:
@@ -130,7 +119,24 @@ class App(tk.Tk):
             digit_chars = int(self.num_digits.get())
             symbol_chars = int(self.num_symbols.get())
 
-            print(f"{upper_chars}-{low_chars}-{digit_chars}-{symbol_chars}")
+            # A-Z
+            for _ in range(0, upper_chars):
+                self.password.append(random.choice(self.upperLetters))
+
+            # a-z
+            for _ in range(0, low_chars):
+                self.password.append(random.choice(self.lowerLetters))
+
+            # 0-9
+            for _ in range(0, digit_chars):
+                self.password.append(random.choice(self.numbers))
+
+            # !,$,&
+            for _ in range(0, symbol_chars):
+                self.password.append(random.choice(self.symbols))
+
+            self.toplevel(self.password)
+            return
 
         except ValueError:
             messagebox.showerror('Error', 'Enter valid numbers')
