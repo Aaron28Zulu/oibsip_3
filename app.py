@@ -3,6 +3,7 @@ import string
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk, messagebox
+import pyperclip as pc
 
 
 class App(tk.Tk):
@@ -32,7 +33,7 @@ class App(tk.Tk):
         self.num_digits = StringVar()
         self.num_symbols = StringVar()
 
-        # Frames Content
+        # Frame's Content
         self.password_specification()
 
         # run
@@ -90,27 +91,61 @@ class App(tk.Tk):
         upper_letter_entry.place(relx=0.6, rely=0.6)
 
         s = ttk.Style()
-        s.configure('my.TButton', font=('Arial', 12), background='#fff')
-        btn_calculate = ttk.Button(self, text="Generate", style='my.TButton', cursor='hand2', width=45,
+        s.configure('my.TButton',
+                    font=('Arial', 12),
+                    background='#fff')
+        btn_calculate = ttk.Button(self,
+                                   text="Generate",
+                                   style='my.TButton',
+                                   cursor='hand2',
+                                   width=45,
                                    command=self.generate_password)
         btn_calculate.place(relx=0.12, rely=0.78)
 
+    @staticmethod
+    def copy_pw(password):
+        copied_pw = ''
+        for char in password:
+            copied_pw += char
+        pc.copy(copied_pw)
+        messagebox.showinfo('PW Gen', 'Password Copied Successfully')
+
     def toplevel(self, final_password):
+        """Gets raw password, shuffles it and displays it"""
         pop = Toplevel(self)
         pop.title("Generated Password")
         # pop.geometry('300x100')
         pop.minsize(300, 100)
         pop.resizable(True, False)
 
-        pop_label = ttk.Label(pop, text='Here is your desired password: ', font=('helvetica', 12), foreground='black')
+        pop_label = ttk.Label(pop,
+                              text='Here is your desired password: ',
+                              font=('helvetica', 12),
+                              foreground='black')
         pop_label.pack(pady=10)
-
+        #   Shuffle raw/basic password
         random.shuffle(final_password)
 
-        generated_pw = ttk.Label(pop, text=final_password, background='lightblue', foreground='#000')
+        #   Display shuffled password
+        generated_pw = ttk.Label(pop,
+                                 text=final_password,
+                                 background='lightblue',
+                                 foreground='#000',
+                                 font=('Arial', 10))
         generated_pw.config(anchor=CENTER)
         generated_pw.pack()
+
+        #   Reset password variable so that it doesn't get concatenated when user generates new password
         self.password = []
+
+        #   Button to copy text to clipboard
+        style = ttk.Style()
+        style.configure('CP.TButton', background='black', foreground='black')
+        copy_btn = ttk.Button(pop, text="Copy Password",
+                              style='CP.TButton',
+                              cursor='hand2',
+                              command=lambda: self.copy_pw(final_password))
+        copy_btn.pack(pady=6)
 
     def generate_password(self):
         try:
@@ -135,6 +170,7 @@ class App(tk.Tk):
             for _ in range(0, symbol_chars):
                 self.password.append(random.choice(self.symbols))
 
+            #   Feeds password to 'toplevel function'
             self.toplevel(self.password)
             return
 
